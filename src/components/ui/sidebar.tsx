@@ -4,6 +4,7 @@ import { VariantProps, cva } from 'class-variance-authority'
 import { PanelLeftIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useLayout } from '@/context/layout-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -110,6 +111,8 @@ function SidebarProvider({
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? 'expanded' : 'collapsed'
 
+  const { ghostSidebar } = useLayout()
+
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       state,
@@ -136,7 +139,8 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
+            'group/sidebar-wrapper flex min-h-svh w-full',
+            !ghostSidebar && 'has-data-[variant=inset]:bg-sidebar',
             className
           )}
           {...props}
@@ -154,20 +158,24 @@ function Sidebar({
   collapsible = 'offcanvas',
   className,
   children,
+  ghost = false,
   ...props
 }: React.ComponentProps<'div'> & {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
+  ghost?: boolean
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
-  if (collapsible === 'none') {
+   if (collapsible === 'none') {
     return (
       <div
         data-slot='sidebar'
         className={cn(
-          'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
+          'flex h-full w-(--sidebar-width) flex-col text-sidebar-foreground',
+          !ghost && 'bg-sidebar',
+          ghost && 'bg-background',
           className
         )}
         {...props}
@@ -184,7 +192,7 @@ function Sidebar({
           data-sidebar='sidebar'
           data-slot='sidebar'
           data-mobile='true'
-          className='w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden'
+          className={cn('w-(--sidebar-width) p-0 text-sidebar-foreground [&>button]:hidden', !ghost && 'bg-sidebar', ghost && 'bg-background')}
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
@@ -208,6 +216,7 @@ function Sidebar({
       data-state={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
       data-variant={variant}
+      data-ghost={ghost ? 'true' : undefined}
       data-side={side}
       data-slot='sidebar'
     >
@@ -241,7 +250,12 @@ function Sidebar({
         <div
           data-sidebar='sidebar'
           data-slot='sidebar-inner'
-          className='flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm'
+          className={cn(
+            'flex h-full w-full flex-col',
+            !ghost && 'bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm',
+            ghost && 'bg-background group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm'
+          )}
+          style={ghost ? { backgroundColor: 'var(--background)' } : undefined}
         >
           {children}
         </div>

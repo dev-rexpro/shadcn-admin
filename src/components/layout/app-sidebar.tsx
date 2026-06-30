@@ -13,9 +13,9 @@ import { NavUser } from './nav-user'
 import { TeamSwitcher } from './team-switcher'
 
 export function AppSidebar() {
-  const { collapsible, variant } = useLayout()
+  const { collapsible, variant, ghostSidebar } = useLayout()
   return (
-    <Sidebar collapsible={collapsible} variant={variant}>
+    <Sidebar collapsible={collapsible} variant={variant} ghost={ghostSidebar}>
       <SidebarHeader>
         <TeamSwitcher teams={sidebarData.teams} />
 

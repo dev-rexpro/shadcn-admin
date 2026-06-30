@@ -12,6 +12,7 @@ import { useTheme } from '@/context/theme-provider'
 import { useDirection } from '@/context/direction-provider'
 import { useFont } from '@/context/font-provider'
 import { useSidebar } from '@/components/ui/sidebar'
+import { Switch } from '@/components/ui/switch'
 import { IconDir } from '@/assets/custom/icon-dir'
 import { IconLayoutCompact } from '@/assets/custom/icon-layout-compact'
 import { IconLayoutDefault } from '@/assets/custom/icon-layout-default'
@@ -39,6 +40,7 @@ const appearanceFormSchema = z.object({
   sidebar: z.enum(['inset', 'floating', 'sidebar']),
   layout: z.enum(['default', 'icon', 'offcanvas']),
   direction: z.enum(['ltr', 'rtl']),
+  ghostSidebar: z.boolean().default(false),
   font: z.enum(fonts),
 })
 
@@ -98,7 +100,7 @@ function ConfigRadioItem({
 export function AppearanceForm() {
   const { font, setFont } = useFont()
   const { theme, setTheme, defaultTheme } = useTheme()
-  const { variant, setVariant, defaultVariant: _defaultVariant, defaultCollapsible, collapsible, setCollapsible } = useLayout()
+  const { variant, setVariant, defaultVariant: _defaultVariant, defaultCollapsible, collapsible, setCollapsible, ghostSidebar, setGhostSidebar } = useLayout()
   const { dir, setDir, defaultDir } = useDirection()
   const { open, setOpen } = useSidebar()
 
@@ -109,6 +111,7 @@ export function AppearanceForm() {
     sidebar: variant,
     layout: radioState,
     direction: dir,
+    ghostSidebar,
     font,
   }
 
@@ -119,6 +122,7 @@ export function AppearanceForm() {
 
   function onSubmit(data: AppearanceFormValues) {
     if (data.font != font) setFont(data.font)
+    if (data.ghostSidebar != ghostSidebar) setGhostSidebar(data.ghostSidebar)
 
     showSubmittedData(data)
   }
@@ -319,6 +323,30 @@ export function AppearanceForm() {
               <div id='direction-description' className='sr-only'>
                 Choose between left-to-right or right-to-left site direction
               </div>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='ghostSidebar'
+          render={({ field: _field }) => (
+            <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <div className='space-y-0.5'>
+                <FormLabel className='text-base'>Ghost Sidebar</FormLabel>
+                <FormDescription>
+                  Make the sidebar background transparent to blend with the main panel.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={ghostSidebar}
+                  onCheckedChange={(checked) => {
+                    setGhostSidebar(checked)
+                    form.setValue('ghostSidebar', checked)
+                  }}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

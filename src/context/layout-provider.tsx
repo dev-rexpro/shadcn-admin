@@ -7,11 +7,14 @@ type Variant = 'inset' | 'sidebar' | 'floating'
 // Cookie constants following the pattern from sidebar.tsx
 const LAYOUT_COLLAPSIBLE_COOKIE_NAME = 'layout_collapsible'
 const LAYOUT_VARIANT_COOKIE_NAME = 'layout_variant'
+const SIDEBAR_GHOST_COOKIE_NAME = 'sidebar_ghost'
 const LAYOUT_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+const SIDEBAR_GHOST_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 year
 
 // Default values
 const DEFAULT_VARIANT = 'inset'
 const DEFAULT_COLLAPSIBLE = 'icon'
+const DEFAULT_GHOST_SIDEBAR = false
 
 type LayoutContextType = {
   resetLayout: () => void
@@ -23,6 +26,10 @@ type LayoutContextType = {
   defaultVariant: Variant
   variant: Variant
   setVariant: (variant: Variant) => void
+
+  defaultGhostSidebar: boolean
+  ghostSidebar: boolean
+  setGhostSidebar: (ghostSidebar: boolean) => void
 }
 
 const LayoutContext = createContext<LayoutContextType | null>(null)
@@ -42,6 +49,11 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     return (saved as Variant) || DEFAULT_VARIANT
   })
 
+  const [ghostSidebar, _setGhostSidebar] = useState<boolean>(() => {
+    const saved = getCookie(SIDEBAR_GHOST_COOKIE_NAME)
+    return saved === 'true'
+  })
+
   const setCollapsible = (newCollapsible: Collapsible) => {
     _setCollapsible(newCollapsible)
     setCookie(
@@ -56,9 +68,15 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     setCookie(LAYOUT_VARIANT_COOKIE_NAME, newVariant, LAYOUT_COOKIE_MAX_AGE)
   }
 
+  const setGhostSidebar = (newGhostSidebar: boolean) => {
+    _setGhostSidebar(newGhostSidebar)
+    setCookie(SIDEBAR_GHOST_COOKIE_NAME, String(newGhostSidebar), SIDEBAR_GHOST_COOKIE_MAX_AGE)
+  }
+
   const resetLayout = () => {
     setCollapsible(DEFAULT_COLLAPSIBLE)
     setVariant(DEFAULT_VARIANT)
+    setGhostSidebar(DEFAULT_GHOST_SIDEBAR)
   }
 
   const contextValue: LayoutContextType = {
@@ -69,6 +87,9 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     defaultVariant: DEFAULT_VARIANT,
     variant,
     setVariant,
+    defaultGhostSidebar: DEFAULT_GHOST_SIDEBAR,
+    ghostSidebar,
+    setGhostSidebar,
   }
 
   return <LayoutContext value={contextValue}>{children}</LayoutContext>
