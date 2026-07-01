@@ -3,7 +3,6 @@ import { Monitor, Bell, Palette, Wrench, UserCog } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { SidebarNav } from './components/sidebar-nav'
 
@@ -41,7 +40,6 @@ export function Settings() {
       {/* ===== Top Heading ===== */}
       <Header>
         <Search className='me-auto' />
-        <ProfileDropdown />
       </Header>
 
       <Main fixed>

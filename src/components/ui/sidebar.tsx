@@ -30,6 +30,8 @@ const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 
+type SidebarSide = 'left' | 'right'
+
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed'
   open: boolean
@@ -40,7 +42,13 @@ type SidebarContextProps = {
   toggleSidebar: () => void
 }
 
+type SidebarControlContextProps = {
+  controllers: Partial<Record<SidebarSide, SidebarContextProps | null>>
+  registerSidebar: (side: SidebarSide, controller: SidebarContextProps | null) => void
+}
+
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
+const SidebarControlContext = React.createContext<SidebarControlContextProps | null>(null)
 
 function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -58,12 +66,17 @@ function SidebarProvider({
   className,
   style,
   children,
+  side = 'left',
+  cookieName = SIDEBAR_COOKIE_NAME,
   ...props
 }: React.ComponentProps<'div'> & {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  side?: SidebarSide
+  cookieName?: string
 }) {
+  const controlContext = React.useContext(SidebarControlContext)
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -81,9 +94,9 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      document.cookie = `${cookieName}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
-    [setOpenProp, open]
+    [setOpenProp, open, cookieName]
   )
 
   // Helper to toggle the sidebar.
@@ -126,6 +139,10 @@ function SidebarProvider({
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
   )
 
+  React.useEffect(() => {
+    controlContext?.registerSidebar(side, contextValue)
+  }, [controlContext, side, contextValue])
+
   return (
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
@@ -149,6 +166,39 @@ function SidebarProvider({
         </div>
       </TooltipProvider>
     </SidebarContext.Provider>
+  )
+}
+
+function SidebarControllersProvider({ children }: { children: React.ReactNode }) {
+  const [controllers, setControllers] = React.useState<
+    Partial<Record<SidebarSide, SidebarContextProps | null>>
+  >({})
+
+  const registerSidebar = React.useCallback(
+    (side: SidebarSide, controller: SidebarContextProps | null) => {
+      setControllers((prev) => {
+        if (prev[side] === controller) {
+          return prev
+        }
+
+        return {
+          ...prev,
+          [side]: controller,
+        }
+      })
+    },
+    []
+  )
+
+  const value = React.useMemo<SidebarControlContextProps>(
+    () => ({ controllers, registerSidebar }),
+    [controllers, registerSidebar]
+  )
+
+  return (
+    <SidebarControlContext.Provider value={value}>
+      {children}
+    </SidebarControlContext.Provider>
   )
 }
 
@@ -267,9 +317,12 @@ function Sidebar({
 function SidebarTrigger({
   className,
   onClick,
+  side = 'left',
   ...props
-}: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+}: React.ComponentProps<typeof Button> & { side?: SidebarSide }) {
+  const controlContext = React.useContext(SidebarControlContext)
+  const currentSidebar = controlContext?.controllers[side] ?? null
+  const { toggleSidebar } = currentSidebar ?? useSidebar()
 
   return (
     <Button
@@ -277,7 +330,7 @@ function SidebarTrigger({
       data-slot='sidebar-trigger'
       variant='ghost'
       size='icon'
-      className={cn('size-7', className)}
+      className={cn('size-7', side === 'right' && 'rotate-180', className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -285,7 +338,9 @@ function SidebarTrigger({
       {...props}
     >
       <PanelLeftIcon />
-      <span className='sr-only'>Toggle Sidebar</span>
+      <span className='sr-only'>
+        {side === 'right' ? 'Toggle Right Sidebar' : 'Toggle Sidebar'}
+      </span>
     </Button>
   )
 }
@@ -716,6 +771,7 @@ function SidebarMenuSubButton({
 
 export {
   Sidebar,
+  SidebarControllersProvider,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,

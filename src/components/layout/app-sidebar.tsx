@@ -12,10 +12,19 @@ import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 import { TeamSwitcher } from './team-switcher'
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  side?: 'left' | 'right'
+}
+
+export function AppSidebar({ side = 'left' }: AppSidebarProps) {
   const { collapsible, variant, ghostSidebar } = useLayout()
   return (
-    <Sidebar collapsible={collapsible} variant={variant} ghost={ghostSidebar}>
+    <Sidebar
+      side={side}
+      collapsible={collapsible}
+      variant={variant}
+      ghost={ghostSidebar}
+    >
       <SidebarHeader>
         <TeamSwitcher teams={sidebarData.teams} />
 
