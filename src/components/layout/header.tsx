@@ -49,7 +49,7 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
         <SidebarTrigger
           side='right'
           variant='outline'
-          className='flex md:hidden ms-auto max-md:scale-125'
+          className='flex ms-auto max-md:scale-125'
         />
       </div>
     </header>

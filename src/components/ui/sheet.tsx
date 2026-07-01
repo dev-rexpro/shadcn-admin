@@ -55,15 +55,15 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot='sheet-content'
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500',
+          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition duration-300 ease-in-out',
           side === 'right' &&
-            'inset-y-0 inset-e-0 h-full w-3/4 border-s data-[state=closed]:slide-out-to-end data-[state=open]:slide-in-from-end sm:max-w-sm',
+            'inset-y-0 inset-e-0 h-full w-3/4 border-s translate-x-full data-[state=open]:translate-x-0 data-[state=closed]:translate-x-[calc(100%+1px)] sm:max-w-sm',
           side === 'left' &&
-            'inset-y-0 inset-s-0 h-full w-3/4 border-e data-[state=closed]:slide-out-to-start data-[state=open]:slide-in-from-start sm:max-w-sm',
+            'inset-y-0 inset-s-0 h-full w-3/4 border-e -translate-x-full data-[state=open]:translate-x-0 data-[state=closed]:-translate-x-[calc(100%+1px)] sm:max-w-sm',
           side === 'top' &&
-            'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+            'inset-x-0 top-0 h-auto border-b -translate-y-full data-[state=open]:translate-y-0 data-[state=closed]:-translate-y-[calc(100%+1px)]',
           side === 'bottom' &&
-            'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+            'inset-x-0 bottom-0 h-auto border-t translate-y-full data-[state=open]:translate-y-0 data-[state=closed]:translate-y-[calc(100%+1px)]',
           className
         )}
         {...props}

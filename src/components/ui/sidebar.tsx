@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
-import { PanelLeftIcon } from 'lucide-react'
+import { PanelLeftIcon, PanelRightIcon, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useLayout } from '@/context/layout-provider'
@@ -68,6 +68,7 @@ function SidebarProvider({
   children,
   side = 'left',
   cookieName = SIDEBAR_COOKIE_NAME,
+  width,
   ...props
 }: React.ComponentProps<'div'> & {
   defaultOpen?: boolean
@@ -75,6 +76,7 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void
   side?: SidebarSide
   cookieName?: string
+  width?: string
 }) {
   const controlContext = React.useContext(SidebarControlContext)
   const isMobile = useIsMobile()
@@ -150,7 +152,7 @@ function SidebarProvider({
           data-slot='sidebar-wrapper'
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH,
+              '--sidebar-width': width ?? SIDEBAR_WIDTH,
               '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
@@ -318,8 +320,9 @@ function SidebarTrigger({
   className,
   onClick,
   side = 'left',
+  icon: Icon,
   ...props
-}: React.ComponentProps<typeof Button> & { side?: SidebarSide }) {
+}: React.ComponentProps<typeof Button> & { side?: SidebarSide; icon?: LucideIcon }) {
   const controlContext = React.useContext(SidebarControlContext)
   const currentSidebar = controlContext?.controllers[side] ?? null
   const { toggleSidebar } = currentSidebar ?? useSidebar()
@@ -330,14 +333,20 @@ function SidebarTrigger({
       data-slot='sidebar-trigger'
       variant='ghost'
       size='icon'
-      className={cn('size-7', side === 'right' && 'rotate-180', className)}
+      className={cn('size-7', className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      {Icon ? (
+        <Icon className='size-4' />
+      ) : side === 'right' ? (
+        <PanelRightIcon className='size-4' />
+      ) : (
+        <PanelLeftIcon className='size-4' />
+      )}
       <span className='sr-only'>
         {side === 'right' ? 'Toggle Right Sidebar' : 'Toggle Sidebar'}
       </span>
@@ -358,7 +367,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
       title='Toggle Sidebar'
       className={cn(
         'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-inset-e-4 group-data-[side=right]:inset-s-0 after:absolute after:inset-y-0 after:inset-s-1/2 after:w-0.5 hover:after:bg-sidebar-border sm:flex',
-        'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
+        'data-[side=left]:cursor-w-resize data-[side=right]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
         'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:start-full hover:group-data-[collapsible=offcanvas]:bg-sidebar',
         '[[data-side=left][data-collapsible=offcanvas]_&]:-inset-e-2',

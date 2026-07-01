@@ -17,7 +17,7 @@ type AuthenticatedLayoutProps = {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
-  const defaultRightOpen = getCookie('right_sidebar_state') !== 'false'
+  const defaultRightOpen = getCookie('right_sidebar_state') === 'true'
 
   return (
     <SearchProvider>
@@ -48,6 +48,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
               cookieName='right_sidebar_state'
               side='right'
               className='w-auto flex-none'
+              width='320px'
             >
               <AppSidebar side='right' />
             </SidebarProvider>
