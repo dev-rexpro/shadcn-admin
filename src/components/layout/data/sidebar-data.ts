@@ -17,6 +17,7 @@ import {
   UserX,
   Users,
   MessagesSquare,
+  MessageCircle,
   ShieldCheck,
   AudioWaveform,
   Command,
@@ -52,6 +53,11 @@ export const sidebarData: SidebarData = {
     {
       title: 'General',
       items: [
+        {
+          title: 'New Chat',
+          url: '/chats/new-chat',
+          icon: MessageCircle,
+        },
         {
           title: 'Dashboard',
           url: '/',
